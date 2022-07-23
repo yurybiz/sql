@@ -1,0 +1,145 @@
+1. Получить список всех городов (City) из таблицы Suppliers – select (https://www.w3schools.com/sql/sql_select.asp)
+
+SELECT City FROM Suppliers;
+
+2. Получить список всех городов (City) из таблицы Customers – group by (https://www.w3schools.com/sql/sql_groupby.asp)
+
+SELECT City FROM Customers GROUP BY City;
+
+3. Получить всю информацию об Employees у которых есть степень бакалавра. (BA degree) – like (https://www.w3schools.com/sql/sql_like.asp)
+
+SELECT * FROM Employees WHERE Notes LIKE '% BA %';
+
+4. Отобразить всех Поставщиков (Suppliers) находящихся в городе (City), название которого начинается с буквы "S", а название страны начинает с любой буквы кроме "S". – and (https://www.w3schools.com/sql/sql_and_or.asp)
+
+SELECT * FROM Suppliers
+WHERE City LIKE 'S%' AND Country NOT LIKE 'S%';
+
+5. Отобразить все продукты (Products), с ценой (Price) от 30 до 40 долларов – between (https://www.w3schools.com/sql/sql_between.asp)
+
+SELECT * FROM Products
+WHERE Price BETWEEN 30 AND 40;
+
+6. Отобразить ID и имена заказчиков (Customer), которые делали хотя бы один заказ (Orders). Выводимые записи не должны дублироваться. – join (https://www.w3schools.com/sql/sql_join.asp)
+
+SELECT DISTINCT Orders.CustomerID, Customers.CustomerName
+FROM Customers
+INNER JOIN Orders
+ON Customers.CustomerID=Orders.CustomerID;
+
+7. Добавить запись о новом клиенте (Customer) двумя способами – insert (https://www.w3schools.com/sql/sql_insert.asp)
+
+7.1. Явно указывая значение CustomerID в запросе
+
+INSERT INTO Customers
+VALUES ('92', 'Michael Zhukov', 'Mary Yarovaya', 'Mayakovski Str.', 'Kiev', '01000', 'Ukraine');
+
+7.2. Не указывая значение CustomerID в запросе (значение должно быть сгенерировано автоматически)
+
+INSERT INTO Customers (CustomerName, City, Country)
+VALUES ('Test Name', 'Testcity', 'Belarus');
+
+9. Удалить записи созданные в предыдущем пункте – delete (https://www.w3schools.com/sql/sql_delete.asp)
+
+DELETE FROM Customers
+WHERE CustomerName='Michael Zhukov';
+
+DELETE FROM Customers
+WHERE CustomerName='Test Name';
+
+10. Обновите любую запись в таблице Customers. Один запрос должен обновлять не менее двух полей – update (https://www.w3schools.com/sql/sql_update.asp)
+
+UPDATE Customers
+SET ContactName = 'Test Name', City= 'Testcity'
+WHERE CustomerID = 1;
+
+ДОПОЛНИТЕЛЬНО: проработать на практике операторы SQL
+
+11. Отобразите в результате всех поставщиков, которые находятся в городе с именем, начинающимся на "S", но не в стране начинающейся на "S"
+
+SELECT * FROM Suppliers
+WHERE City LIKE 'S%' AND Country NOT LIKE 'S%';
+
+12. Вывести в алфавитном порядке все города из базы находящиеся не в Германии не во Франции и не в Англии
+
+SELECT City FROM Suppliers
+WHERE Country!='Germany' and Country!='France' and Country!='UK' order by City;
+
+13. Выберите информацию о сотрудниках в алфавитном порядке по Фамилии и Имени, которые имеют степень бакалавра гуманитарных наук
+
+SELECT * FROM Employees
+WHERE Notes LIKE '% BA %' and Notes LIKE '% english %' or Notes LIKE '% BA %' and Notes LIKE '% psychology %';
+
+14. Вставить запись о новом клиенте двумя способами
+
+14.1. Указать уникальный идентификатор в запросе
+
+INSERT INTO Customers
+VALUES ('92', 'Michael Zhukov', 'Mary Yarovaya', 'Mayakovski Str.', 'Kiev', '01000', 'Ukraine');
+
+14.2. Не указывать явно уникальный идентификатор в запросе, идентификатор должен генерироваться автоматически
+
+INSERT INTO Customers (CustomerName, City, Country)
+VALUES ('Test Name', 'Testcity', 'Belarus');
+
+15. Сделать апдейт любой записи в базе
+
+UPDATE Customers
+SET ContactName = 'Test Name', City= 'Testcity'
+WHERE CustomerID = 1;
+
+16. Сделать удаление записи из любой таблицы
+
+DELETE FROM Employees
+WHERE EmployeeID='1';
+
+17. Вывести имена всех людей, которые покупали морские продукты
+
+SELECT DISTINCT Customers.CustomerName
+FROM Customers
+INNER JOIN Orders
+ON Customers.CustomerID=Orders.CustomerID
+JOIN OrderDetails
+ON OrderDetails.OrderID=Orders.OrderID
+JOIN Products
+ON Products.ProductID=OrderDetails.ProductID
+WHERE Products.CategoryID='8';
+
+18. Вывести имя клиента и количество совершенных им покупок
+
+SELECT Customers.CustomerName, count(Orders.CustomerID) as CountOrders
+FROM Customers
+INNER JOIN Orders
+ON Customers.CustomerID=Orders.CustomerID
+GROUP BY Customers.CustomerName;
+
+19. Вывести имена и ID пяти самых покупаемых продуктов. А также сколько их было продано
+
+SELECT Products.ProductID, Products.ProductName, sum(OrderDetails.Quantity) as Sum
+FROM OrderDetails
+INNER JOIN Products
+ON Products.ProductID=OrderDetails.ProductID
+GROUP BY Products.ProductID
+ORDER BY sum(OrderDetails.Quantity) DESC LIMIT 5;
+
+20. Покажите сколько заказов было сделано каждым грузоотправителем. Отобразите имена грузоотправителей и количество выполненных ими заказов
+
+SELECT Shippers.ShipperName, count(Orders.ShipperID) as Count
+FROM Orders
+INNER JOIN Shippers
+ON Orders.ShipperID=Shippers.ShipperID
+GROUP BY Shippers.ShipperName;
+
+21. * Получитe имена клиентов и средний чек заказов, который сумма которого составляет от 1000 долларов(включительно). Среднюю сумму заказа необходимо округлить до двух сотых
+
+SELECT Customers.CustomerName, round(sum(OrderDetails.Quantity*Products.Price)/count(DISTINCT Orders.OrderID),2) as AvSum
+FROM Customers
+INNER JOIN Orders
+ON Customers.CustomerID=Orders.CustomerID
+JOIN OrderDetails
+ON OrderDetails.OrderID=Orders.OrderID
+JOIN Products
+ON Products.ProductID=OrderDetails.ProductID
+GROUP BY Customers.CustomerName
+HAVING AvSum >= 1000
+ORDER BY AvSum DESC;
